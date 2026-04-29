@@ -1,0 +1,342 @@
+/* ========================= */
+/*       Record Page          */
+/* ========================= */
+.record-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 2rem;
+}
+
+/* Ambient background */
+.record-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+}
+
+.orb-1 {
+  width: 400px;
+  height: 400px;
+  background: #7c3aed;
+  top: -100px;
+  right: -100px;
+  animation: orbFloat1 12s ease-in-out infinite;
+}
+
+.orb-2 {
+  width: 300px;
+  height: 300px;
+  background: #a78bfa;
+  bottom: -50px;
+  left: -80px;
+  animation: orbFloat2 15s ease-in-out infinite;
+}
+
+.orb-3 {
+  width: 200px;
+  height: 200px;
+  background: #c084fc;
+  top: 40%;
+  left: 50%;
+  animation: orbFloat3 10s ease-in-out infinite;
+}
+
+@keyframes orbFloat1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-40px, 40px); }
+}
+
+@keyframes orbFloat2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(30px, -30px); }
+}
+
+@keyframes orbFloat3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-20px, 20px) scale(1.2); }
+}
+
+/* Navigation */
+.record-nav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  padding: 1.25rem 2rem;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-start;
+  animation: fadeInDown 0.6s var(--ease-out) both;
+}
+
+.nav-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--surface-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s var(--ease-out);
+}
+
+.nav-back:hover {
+  color: var(--text-primary);
+  border-color: var(--primary-light);
+  background: var(--surface-glass-hover);
+  transform: translateX(4px);
+}
+
+/* Container */
+.record-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  max-width: 700px;
+  width: 100%;
+}
+
+.record-title {
+  font-family: var(--font-primary);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  animation: fadeInUp 0.6s var(--ease-out) both;
+}
+
+/* Microphone button */
+.mic-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 180px;
+  height: 180px;
+  animation: scaleIn 0.5s 0.2s var(--ease-spring) both;
+}
+
+.mic-button {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-primary);
+  background-size: 200% 200%;
+  border: none;
+  color: white;
+  position: relative;
+  z-index: 2;
+  transition: all 0.4s var(--ease-out);
+  box-shadow: 0 8px 30px rgba(139, 92, 246, 0.5);
+}
+
+.mic-button.recording {
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  box-shadow: 0 8px 35px rgba(239, 68, 68, 0.5);
+  transform: scale(var(--audio-scale, 1));
+}
+
+.mic-button:hover:not(:disabled) {
+  transform: scale(1.08);
+  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.6);
+}
+
+.mic-button.recording:hover {
+  box-shadow: 0 12px 40px rgba(239, 68, 68, 0.6);
+}
+
+.mic-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mic-svg {
+  width: 40px;
+  height: 40px;
+}
+
+/* Ripple effects */
+.mic-ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(239, 68, 68, 0.4);
+  z-index: 1;
+}
+
+.ripple-1 { animation: ripple 2s 0s ease-out infinite; }
+.ripple-2 { animation: ripple 2s 0.5s ease-out infinite; }
+.ripple-3 { animation: ripple 2s 1s ease-out infinite; }
+
+/* Timer */
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Courier New', monospace;
+  font-size: 2rem;
+  color: var(--text-primary);
+  letter-spacing: 3px;
+  animation: fadeIn 0.4s var(--ease-out) both;
+}
+
+.timer-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+.timer-dot.active {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+/* Audio Visualizer */
+.visualizer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 60px;
+  width: 100%;
+  max-width: 500px;
+  animation: fadeIn 0.5s var(--ease-out) both;
+}
+
+.viz-bar {
+  width: 4px;
+  background: var(--gradient-primary);
+  border-radius: 2px;
+  min-height: 4px;
+  animation: vizPulse 0.8s calc(var(--i) * 0.05s) ease-in-out infinite alternate;
+}
+
+@keyframes vizPulse {
+  0% {
+    height: 4px;
+    opacity: 0.4;
+  }
+  100% {
+    height: calc(10px + var(--level, 0.5) * 25px);
+    opacity: 1;
+  }
+}
+
+/* Result card */
+.result-card {
+  width: 100%;
+  padding: 2rem;
+  text-align: center;
+  animation: scaleIn 0.5s var(--ease-spring) both;
+}
+
+.result-card.error {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.result-icon {
+  font-size: 1.5rem;
+}
+
+.result-label {
+  font-family: var(--font-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.result-text {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 2;
+  padding: 1.5rem;
+  background: rgba(139, 92, 246, 0.06);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(139, 92, 246, 0.1);
+  margin-bottom: 1.5rem;
+  min-height: 80px;
+}
+
+.result-retry {
+  margin: 0 auto;
+}
+
+/* Hint */
+.record-hint {
+  color: var(--text-muted);
+  font-size: 1rem;
+  text-align: center;
+  animation: fadeIn 0.8s 0.4s var(--ease-out) both;
+}
+
+/* Spinner */
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .record-title {
+    font-size: 1.4rem;
+  }
+
+  .mic-container {
+    width: 150px;
+    height: 150px;
+  }
+
+  .mic-button {
+    width: 100px;
+    height: 100px;
+  }
+
+  .mic-svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .result-text {
+    font-size: 1.1rem;
+  }
+}
