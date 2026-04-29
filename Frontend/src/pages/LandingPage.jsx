@@ -8,7 +8,7 @@ function LandingPage() {
 
   useEffect(() => {
     const timer = setTimeout(() => setLoaded(true), 100);
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timer);  // add loading state for better animation control
   }, []);
 
   return (
