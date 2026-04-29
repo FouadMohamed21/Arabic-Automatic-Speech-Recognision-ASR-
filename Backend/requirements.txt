@@ -1,8 +1,7 @@
 fastapi==0.115.0
 uvicorn[standard]==0.30.0
 python-multipart==0.0.9
-# Uncomment these when you're ready to load the model:
-# openai-whisper
-# torch
-# transformers
-# librosa
+torch
+transformers
+librosa
+soundfile
