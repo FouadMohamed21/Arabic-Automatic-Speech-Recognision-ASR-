@@ -1,23 +1,36 @@
-"""
-Arabic ASR Backend Server
-FastAPI server that receives audio recordings and returns transcribed Arabic text.
-Uses wav2vec2-large-xlsr-53-arabic model (from Paper 2 implementation).
-"""
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-import tempfile
-import os
 import logging
+import os
 import subprocess
-import torch
-import librosa
-from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
+import tempfile
+import warnings
+
+# ── Silence HuggingFace / transformers warnings BEFORE any imports ──
+# These env vars must be set before the libraries are imported.
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+os.environ["HF_HUB_VERBOSITY"] = "error"
+os.environ["TRANSFORMERS_NO_ADVISORY_WARNINGS"] = "1"
+os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
+
+# Suppress Python warnings module messages about unauthenticated requests
+warnings.filterwarnings("ignore", message=".*unauthenticated requests.*")
+warnings.filterwarnings("ignore", category=UserWarning)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Also suppress at the logging level
+logging.getLogger("httpx").setLevel(logging.ERROR)
+logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
+logging.getLogger("transformers").setLevel(logging.ERROR)
+
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import torch
+import librosa
+from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
 
 app = FastAPI(
     title="Arabic ASR API",
@@ -61,12 +74,13 @@ def buckwalter_to_arabic(text: str) -> str:
 MODEL_ID = "elgeish/wav2vec2-large-xlsr-53-arabic"
 processor = None
 model = None
+model_loading = False  # True while model is downloading/loading
 
 
-@app.on_event("startup")
-async def load_model():
-    """Load the wav2vec2 model on server startup."""
-    global processor, model
+def _load_model_sync():
+    """Load model in a background thread so the server stays responsive."""
+    global processor, model, model_loading
+    model_loading = True
     try:
         logger.info(f"Loading model: {MODEL_ID} ...")
         processor = Wav2Vec2Processor.from_pretrained(MODEL_ID)
@@ -76,6 +90,16 @@ async def load_model():
     except Exception as e:
         logger.error(f"❌ Failed to load model: {e}")
         logger.warning("Server will run but transcription will return placeholder text.")
+    finally:
+        model_loading = False
+
+
+@app.on_event("startup")
+async def load_model():
+    """Start model loading in a background thread."""
+    import threading
+    thread = threading.Thread(target=_load_model_sync, daemon=True)
+    thread.start()
 
 
 def convert_to_wav(input_path: str) -> str:
@@ -84,9 +108,14 @@ def convert_to_wav(input_path: str) -> str:
     Browser recordings are typically webm which librosa can't read directly.
     """
     wav_path = input_path.rsplit('.', 1)[0] + '_converted.wav'
+    
+    import shutil
+    # Use shutil.which first, fallback to the absolute path where winget installed it
+    ffmpeg_cmd = shutil.which('ffmpeg') or r"C:\Users\omarL\AppData\Local\Microsoft\WinGet\Links\ffmpeg.exe"
+    
     try:
         cmd = [
-            'ffmpeg', '-y', '-i', input_path,
+            ffmpeg_cmd, '-y', '-i', input_path,
             '-ar', '16000',      # 16kHz sample rate (required by wav2vec2)
             '-ac', '1',          # mono channel
             '-sample_fmt', 's16', # 16-bit PCM
@@ -101,7 +130,7 @@ def convert_to_wav(input_path: str) -> str:
         logger.info(f"Converted {input_path} -> {wav_path}")
         return wav_path
     except FileNotFoundError:
-        raise RuntimeError("ffmpeg is not installed. Please install ffmpeg.")
+        raise RuntimeError("ffmpeg is not installed or could not be found.")
 
 
 def transcribe_audio(file_path: str) -> str:
@@ -161,6 +190,7 @@ async def root():
         "status": "running",
         "message": "Arabic ASR API is online",
         "model_loaded": model is not None,
+        "model_loading": model_loading,
     }
 
 
@@ -172,12 +202,21 @@ async def transcribe(audio: UploadFile = File(...)):
     Accepts audio files (webm, wav, mp3, ogg, flac, m4a).
     Returns JSON with the transcribed text.
     """
+    # Return friendly message if model is still downloading
+    if model_loading:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "text": "⏳ النموذج قيد التحميل حالياً... يرجى الانتظار قليلاً ثم المحاولة مرة أخرى.",
+                "status": "loading",
+            }
+        )
     # Validate file type
     allowed_types = [
         "audio/webm", "audio/wav", "audio/wave", "audio/x-wav",
         "audio/mp3", "audio/mpeg", "audio/ogg", "audio/flac",
         "audio/mp4", "audio/m4a", "audio/x-m4a",
-        "video/webm",  # Chrome sometimes sends webm as video/webm
+        "video/webm",
     ]
 
     content_type = audio.content_type or ""
