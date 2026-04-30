@@ -43,7 +43,7 @@ function AboutPage() {
     { name: 'HuggingFace', desc: 'مكتبة النماذج المتقدمة', color: '#fbbf24' },
     { name: 'Python', desc: 'لغة البرمجة الأساسية', color: '#3b82f6' },
     { name: 'Tailwind', desc: ' لغة التصميم الاساسية', color: '#cacacaff' },
-    { name: 'Github', desc: '', color: '#202032ff' },
+    { name: 'Github', desc: '', color: '#06b6d4' },
   ];
 
   const steps = [
@@ -82,9 +82,7 @@ function AboutPage() {
       <div className="relative z-[1] max-w-[1000px] mx-auto pt-24 pb-12 px-8">
         {/* Hero section */}
         <section className={`text-center mb-20 ${animClass} delay-100`}>
-          <div className="inline-flex items-center gap-2 py-2 px-5 bg-surface-glass border border-border rounded-full text-accent text-[0.9rem] font-medium mb-6">
-            <span>✨</span> نظام ذكاء اصطناعي متقدم
-          </div>
+          
           <h1 className="font-primary text-[2rem] md:text-[2.8rem] font-black leading-tight mb-6">
             عن مشروع
             <span className="bg-gradient-primary bg-[length:200%_200%] bg-clip-text text-transparent animate-gradientShift"> التعرّف على الكلام العربي</span>
@@ -97,12 +95,12 @@ function AboutPage() {
           <div className='mt-3 p-4 md:mt-6 flex items-center justify-center gap-4'>
             <button className='btn-primary px-4 md:px-6 py-2.5 text-[0.85rem] md:text-[0.95rem]'>
               <a href="https://github.com/FouadMohamed21/Arabic-Automatic-Speech-Recognision-ASR-.git" target='_blank'>
-                Git Hub
+                GitHub
               </a>
             </button>
             <button className='btn-secondary px-4 md:px-6 py-2.5 text-[0.85rem] md:text-[0.95rem]'>
               <a href="https://drive.google.com/file/d/1GXurJNO26VIMRV1pcOuferQbuRWrrhIi/view?usp=drive_link" target='_blank'>
-                Our Report
+                Report
               </a>
             </button>
           </div>
