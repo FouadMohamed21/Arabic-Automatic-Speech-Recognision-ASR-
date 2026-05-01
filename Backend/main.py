@@ -111,7 +111,7 @@ def convert_to_wav(input_path: str) -> str:
     
     import shutil
     # Use shutil.which first, fallback to the absolute path where winget installed it
-    ffmpeg_cmd = shutil.which('ffmpeg') or r"C:\Users\omarL\AppData\Local\Microsoft\WinGet\Links\ffmpeg.exe"
+    ffmpeg_cmd = shutil.which('ffmpeg') or r"C:\Users\fouad\AppData\Local\Microsoft\WinGet\Links\ffmpeg.exe"
     
     try:
         cmd = [
